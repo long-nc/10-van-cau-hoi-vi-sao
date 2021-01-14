@@ -6,6 +6,12 @@ from collections import OrderedDict
 raw_data_dir = './raw_data'
 save_dir = './data'
 
+# straight-forward way to bypass some edge cases that question does not contain question mark (?!?)
+bypass_questions = {
+    'Hoa_hoc': ['7. Về không khí']
+}
+
+
 def extract_pdf(file_path, save_dir):
     print(f'Processing {file_path}')
     raw_text = extract_text(file_path)
@@ -22,25 +28,35 @@ def process_pdf_content(raw_text, topic, save_dir):
         toc = splitted[-1]
         # get questions from table of contents
         questions = re.split('\?\s', toc)
-
     else:
         # extract questions manually
-        iter = re.finditer('[0-9]+\.\s', content)
+        iter = re.finditer('\s[0-9]+\.?\s', content)
         questions = list()
+        incremental_idx = 1
         for m in iter:
             idx = m.start()
             question = content[idx:]
+            if int(question.strip().split()[0].replace('.', '')) != incremental_idx:
+                continue
             question = question.split('?', 1)[0]
-            questions.append(question)
+            try:
+                bypass_q = [bypass_q for bypass_q in bypass_questions[topic] if bypass_q in question][0]
+            except:
+                bypass_q = None
 
+            if len(question) > 150 and bypass_q == None:
+                continue
+            questions.append(bypass_q if bypass_q else question)
+            incremental_idx = incremental_idx + 1
 
-    questions = [clipped_q.strip() for q in questions for clipped_q in re.split('[0-9\s]+\.', q) if clipped_q.strip() != '']
+    questions = [clipped_q.strip() for q in questions for clipped_q in re.split('[0-9\s]+\.?', q) if clipped_q.strip() != '']
 
     # split content by question and save result
     QA_map = OrderedDict()
     incremental_idx = 1
     for question in questions:
         try:
+            print(f'{incremental_idx}. ' + question)
             # handle exception when question parsed incorrectly
             answer = content.split(f'{incremental_idx}. ' + question)[1]
             QA_map[question] = answer
@@ -55,7 +71,7 @@ def process_pdf_content(raw_text, topic, save_dir):
         answer = QA_map[question]
         if i < len(questions) - 1:
             answer = answer.split(f'{i+2}. ' + questions[i+1])[0]
-        answer.replace('T ừ', 'Từ')
+        answer = answer.replace('T ừ', 'Từ')
         with open(f'{save_dir}/{topic}/Q{i+1}.txt', 'w') as f:
             f.write(question + "?")
         with open(f'{save_dir}/{topic}/A{i+1}.txt', 'w') as f:
@@ -65,4 +81,4 @@ if __name__ == '__main__':
     list_pdfs = os.listdir(raw_data_dir)
     # for pdf in list_pdfs:
         # extract_pdf(f'./raw_data/{pdf}', save_dir)
-    extract_pdf('./raw_data/Trai_dat.pdf', save_dir)
+    extract_pdf('./raw_data/Hoa_hoc.pdf', save_dir)
