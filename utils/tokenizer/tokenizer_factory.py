@@ -1,14 +1,14 @@
 import os.path
-from vncorenlp import VnCoreNLP
-from CocCocTokenizer import PyTokenizer
 
 class TokenizerFactory():
     def __init__(self, engine = 'coccoc'):
         my_path = os.path.abspath(os.path.dirname(__file__))
         self.engine = engine
         if engine == 'coccoc':
+            from CocCocTokenizer import PyTokenizer
             self._tokenizer = PyTokenizer()
         elif engine == 'vncorenlp':
+            from vncorenlp import VnCoreNLP
             self._tokenizer = VnCoreNLP(os.path.join(my_path, "vncorenlp","VnCoreNLP-1.1.1.jar"), annotators="wseg", max_heap_size='-Xmx500m')
         else:
             raise ValueError('Invalid engine type, expected "coccoc" or "vncorenlp", found {0}'.format(engine))

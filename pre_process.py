@@ -13,7 +13,7 @@ class PreProcessor():
         else:
             self.stopwordUtils = None
 
-    def preProcess(self, text):
+    def pre_process(self, text):
 
         # 1: split into sentences
         sentences = filter(lambda s: s != '', re.split('\.|\?', text))
@@ -23,11 +23,10 @@ class PreProcessor():
         for index, s in enumerate(sentences):
             words = self.tokenizer.tokenize(s)
             if self.stopwordUtils is not None:
-                sentences[index] = " ".join(filter(lambda w: not self.stopwordUtils.checkStopword(w), words))
+                sentences[index] = " ".join(filter(lambda w: not self.stopwordUtils.check_stopword(w), words))
             else:
                 sentences[index] = " ".join(words)
 
-        print(sentences)
         return sentences
 
 if __name__ == "__main__":
@@ -39,4 +38,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     preProcessor = PreProcessor(stopword = args.stopword, tokenizer = args.tokenizer)
-    preProcessor.preProcess(text = args.text)
+    preProcessor.pre_process(text = args.text)
