@@ -6,8 +6,12 @@ import string, sys, re
 
 class PreProcessor():
 
-    def __init__(self, stopword, tokenizer = 'coccoc'):
-        self.tokenizer = TokenizerFactory(tokenizer)
+    def __init__(self, stopword, tokenizer):
+        if tokenizer is not None:
+            self.tokenizer = TokenizerFactory(tokenizer)
+        else:
+            self.tokenizer = None
+
         if stopword is not None:
             self.stopwordUtils = StopwordUtils(stopword)
         else:
@@ -21,7 +25,10 @@ class PreProcessor():
 
         # 2: tokenizing
         for index, s in enumerate(sentences):
-            words = self.tokenizer.tokenize(s)
+            if self.tokenizer is not None:
+                words = self.tokenizer.tokenize(s)
+            else:
+                words = s.split()
             if self.stopwordUtils is not None:
                 sentences[index] = " ".join(filter(lambda w: not self.stopwordUtils.check_stopword(w), words))
             else:
@@ -33,7 +40,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description = 'Question pre-processing')
     parser.add_argument('text', help="Input text")
     parser.add_argument('-s', '--stopword', help="Stopword list: full, basic")
-    parser.add_argument('-t', '--tokenizer', default='coccoc', help="Tokenizer engine: coccoc, vncorenlp (default is coccoc)")
+    parser.add_argument('-t', '--tokenizer', default='coccoc', help="Tokenizer engine: coccoc, vncorenlp, pyvi")
 
     args = parser.parse_args()
 

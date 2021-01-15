@@ -2,3 +2,6 @@ pdfminer.six
 vncorenlp
 gensim
 torch
+mxnet
+d2l
+pyvi

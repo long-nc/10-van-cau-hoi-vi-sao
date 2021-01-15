@@ -30,5 +30,17 @@ class TestTokenizer(unittest.TestCase):
         output = ['Công_việc', 'của', 'tôi', 'hiện_tại', 'đang', 'tiến_triển', 'tốt']
         self.assertEqual(engine.tokenize(inputText), output)
 
+    def test_empty_text_for_pyvi_engine(self):
+        inputText = ""
+        engine = TokenizerFactory("pyvi")
+        output = []
+        self.assertEqual(engine.tokenize(inputText), output)
+
+    def test_tokenizing_a_sentence_for_pyvi_engine(self):
+        inputText = "Công việc của tôi hiện tại đang tiến triển tốt"
+        engine = TokenizerFactory("pyvi")
+        output = ['Công_việc', 'của', 'tôi', 'hiện_tại', 'đang', 'tiến_triển', 'tốt']
+        self.assertEqual(engine.tokenize(inputText), output)
+
 if __name__ == "__main__":
     unittest.main()
